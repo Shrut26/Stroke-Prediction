@@ -3,7 +3,12 @@ import pandas as pd
 import numpy as np
 import pickle
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+from PIL import Image
 
+image = Image.open('background.jpg')
+
+st.image(image, caption='')
 st.write("""
 # Stroke Prediction App
 This app predicts that whether the person has stroke or not based upon the given paramters
@@ -17,7 +22,7 @@ def user_input_features():
         hypertension = st.sidebar.selectbox('Hypertension',('Yes','No'))
         heart_disease = st.sidebar.selectbox('Heart-disease',('Yes','No'))
         ever_married = st.sidebar.selectbox('Ever Married',('Yes','No'))
-        work_type = st.sidebar.selectbox('Work Type',('Private','Self-Employed','Govt_job','children','Never_worked'))
+        work_type = st.sidebar.selectbox('Work Type',('Private','Self-employed','Govt_job','children','Never_worked'))
         Residence_type = st.sidebar.selectbox('Residence Type',('Urban','Rural'))
         avg_glucose_level = st.sidebar.slider('average glucose level',1,350,175)
         smoking_status = st.sidebar.selectbox('Smoking Status',('formerly smoked','never smoked','smokes','Unknown'))
@@ -62,9 +67,12 @@ strokes = stroke_raw.drop(columns=['stroke'],axis=1)
 
 df = pd.concat([input_df,strokes],axis=0)
 
-df = df[:1]
-st.write(df)
+df_input = df[:1]
+st.write(df_input)
 
+continuous_columns = ['age','avg_glucose_level']
+df[continuous_columns] = StandardScaler().fit_transform(df[continuous_columns])
+df = df[:1]
 load_clf = pickle.load(open('model.pkl', 'rb'))
 
 
@@ -73,8 +81,8 @@ prediction_proba = load_clf.predict_proba(df)
 
 
 st.subheader('Prediction')
-penguins_species = np.array(['Do not have stroke','Has stroke'])
+penguins_species = np.array(['Hurray !! You don not have stroke','Chances of having stroke are high please consult Vascular neurologists '])
 st.write(penguins_species[prediction])
 
-st.subheader('Prediction Probability')
+st.subheader('Prediction Probabilities')
 st.write(prediction_proba)
