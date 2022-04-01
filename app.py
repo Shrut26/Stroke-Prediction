@@ -11,7 +11,8 @@ image = Image.open('background.jpg')
 st.image(image, caption='')
 st.write("""
 # Stroke Prediction App
-This app predicts that whether the person has stroke or not based upon the given paramters
+Stroke is the 2nd leading cause of death globally, responsible for approximately 
+11% of total deaths. This app which prediction whether a patient is likely to get a stroke or not is based upon the input parameters like gender, age, various diseases, and smoking status.
 """)
 
 st.sidebar.header('User Input Features')
@@ -68,6 +69,7 @@ strokes = stroke_raw.drop(columns=['stroke'],axis=1)
 df = pd.concat([input_df,strokes],axis=0)
 
 df_input = df[:1]
+st.subheader('Your features')
 st.write(df_input)
 
 continuous_columns = ['age','avg_glucose_level']
@@ -81,7 +83,7 @@ prediction_proba = load_clf.predict_proba(df)
 
 
 st.subheader('Prediction')
-penguins_species = np.array(['Hurray !! You don not have stroke','Chances of having stroke are high please consult Vascular neurologists '])
+penguins_species = np.array(['Hurray !! You donot have stroke','Chances of having stroke are high please consult Vascular neurologists '])
 st.write(penguins_species[prediction])
 
 st.subheader('Prediction Probabilities')
