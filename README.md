@@ -5,3 +5,9 @@ stroke based on the input parameters like gender, age, various diseases, and smo
 status.
 <br>
  <div> Deployed the web app at this <a href = "https://share.streamlit.io/shrut26/stroke-prediction/main/app.py">link</a>
+
+  <h4>Procedure</h4>
+  <li>Install <a href="https://www.anaconda.com/products/distribution">Anaconda in your environment</li>
+  <li>Navigate to the clone repository
+   ```cd <project_directory_name> # Stroke-Prediction```
+  <\li>
