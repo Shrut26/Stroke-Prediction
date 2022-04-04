@@ -5,11 +5,39 @@ stroke based on the input parameters like gender, age, various diseases, and smo
 status.
 
 <h3> Deployed the web app at this <a href = "https://share.streamlit.io/shrut26/stroke-prediction/main/app.py">link</a></h3>
+<h2>Environment Set-up</h2>
 
-<h4>Procedure</h4>
-   - Install [Anaconda](https://www.anaconda.com/products/distribution) in your environment
-    - Navigate to the clone repository
-       ```
-       cd <project_directory_name> # Stroke-Prediction
-       ```
-  
+  - Install [python](https://www.python.org/downloads/) 
+  - The python libraries required to execute the code are enlisted below, run the following commands(for python 3) in command prompt(for Windows) to download the respective libraries(use pip instead of pip3 for python 2).
+       - Numpy 
+         
+         ```
+         pip3 install numpy
+         ```
+       - OpenCV
+         
+         ```
+         pip install opencv-python
+         ```
+                  
+         
+       - Tensorflow
+         
+         ```
+         pip install tensorflow
+         ```
+         
+       - Keras
+         ```
+         pip install keras
+         ```
+       - Matplotlib
+                  
+         ```
+         pip3 install matplotlib
+         ```
+      
+  - Following files would be required to set-up the required environment for proper working of this project:
+      - [yolov3 weights](https://pjreddie.com/media/files/yolov3.weights)
+      - yolov3.cfg (file given in the repo)
+      - coco.names (file given in the repo)
