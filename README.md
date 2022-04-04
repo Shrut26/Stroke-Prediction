@@ -9,5 +9,7 @@ status.
   <h4>Procedure</h4>
   <li>Install <a href="https://www.anaconda.com/products/distribution">Anaconda</a> in your environment</li>
   <li>Navigate to the clone repository
-   ```cd <project_directory_name> # Stroke-Prediction```
+   ```
+   cd <project_directory_name> # Stroke-Prediction
+   ```
   </li>
