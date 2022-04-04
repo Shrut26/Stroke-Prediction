@@ -7,7 +7,7 @@ status.
 <h3> Deployed the web app at this <a href = "https://share.streamlit.io/shrut26/stroke-prediction/main/app.py">link</a></h3>
 <h2>Environment Set-up</h2>
 
-  - Install [Anaconda](https://www.anaconda.com/products/distribution) 
+  - Install [Anaconda](https://www.anaconda.com/products/distribution) python
   - Navigate to the cloned repository.
     ```
     cd <project_directory_name>     #   Stroke-Prediction
