@@ -20,7 +20,7 @@ status.
     ```
     pip install -r requirements.txt
     ```
-  - run
+  - run the web app locally
     ```
     streamlit run app.py
     ```
