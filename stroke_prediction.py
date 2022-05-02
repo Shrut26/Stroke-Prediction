@@ -528,22 +528,22 @@ score.style.background_gradient(high=1,axis=0)
 
 """So from above models we finally take RFC, GBC as classifier apart from xgb and lgbm
 
-##Training a neural netwrok
+#Training a neural netwrok
 """
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def get_accuracy(logit, target, batch_size):
+def get_accuracy(logit, target, batch_size):    # To calculate accuracy of neural network 
     corrects = (torch.max(logit, 1)[1].view(target.size()).data == target.data).sum()
     accuracy = 100.0 * corrects/batch_size
     return accuracy.item()
 
-x_train_nn=x_train.values
+x_train_nn=x_train.values                      # To convert x_train and y_train into numpy array
 y_train_nn=y_train.values
 
 """Defining Neural Network parameters"""
 
-batch_size = 100
+batch_size = 100                              
 num_epochs = 100
 learning_rate = 0.1
 size_hidden_1 = 200
@@ -555,14 +555,14 @@ cols = 8
 """Making neural network class"""
 
 class Net(torch.nn.Module):
-    def __init__(self, num_inputs, size_hidden_1, size_hidden_2, n_output, activation_function):
-        super(Net, self).__init__()
+    def __init__(self, num_inputs, size_hidden_1, size_hidden_2, n_output, activation_function):    # num_inputs = number of features
+        super(Net, self).__init__()                                   
 
-        self.flatten1                     = torch.nn.Flatten()
+        self.flatten1                     = torch.nn.Flatten()                                      # to flatten our input(multiple dimensional) into a tensor 
         
-        self.dense1                       = torch.nn.Linear(num_inputs,size_hidden_1)
-        self.activi1                      = activation_function
-        self.balancenormal1               = torch.nn.BatchNorm1d(size_hidden_1)
+        self.dense1                       = torch.nn.Linear(num_inputs,size_hidden_1)               # hidden layer 
+        self.activi1                      = activation_function                                     # user given activation function to be used in hidden layer 
+        self.balancenormal1               = torch.nn.BatchNorm1d(size_hidden_1)                     # it normalizes the output of the hidden layer for activation function that have unbounded output range
         
         self.dense2                       = torch.nn.Linear(size_hidden_1,size_hidden_1)
         self.activi2                      = activation_function
@@ -588,12 +588,12 @@ class Net(torch.nn.Module):
         self.activi7                      = activation_function
         self.balancenormal7               = torch.nn.BatchNorm1d(size_hidden_2)
 
-        self.denseoutput                  = torch.nn.Linear(size_hidden_2,n_output)
+        self.denseoutput                  = torch.nn.Linear(size_hidden_2,n_output)             # output layer 
         self.activipre                    = activation_function
-        self.activioutput                 = torch.nn.Softmax(dim=1)
+        self.activioutput                 = torch.nn.Softmax(dim=1)                             # to convert the output from previous layer into probability for each class in the final output
 
-    def forward(self, x):
-        a= self.flatten1(x)
+    def forward(self, x):                                                                       # forward propogation 
+        a= self.flatten1(x)                                                                     # 1 input flattening layer, 7 hidden layer and 1 output layer are used and are stacked on top of each other
         a= self.dense1(self.activi1(a))
         a= self.balancenormal1(a)
         a= self.dense2(self.activi2(a))
@@ -617,32 +617,32 @@ net = Net(9, 256, 256, 2, activation_function)
 
 """Training neural network"""
 
-def train_neural_network(model,x,y,size_hidden_1,size_hidden_2,num_epochs,lr,batch_size):
+def train_neural_network(model,x,y,size_hidden_1,size_hidden_2,num_epochs,lr,batch_size):          # function to train neural network with given activation function,data,hidden layer size, number of epochs, learning rate, batch size
     batch_no=len(x.values)// batch_size
     x=x.values
     y=y.values
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
-    loss_func = torch.nn.CrossEntropyLoss()  
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)                              # to optimize weights in back propogation by stochastic gradient descent
+    loss_func = torch.nn.CrossEntropyLoss()                                                        # to calculate loss on prediction
     for epoch in range(num_epochs):
-        x, y = shuffle(x, y)
+        x, y = shuffle(x, y)                                                                       # shuffling our input while training 
         train_acc = 0.0
         running_loss = 0.0
 
         for i in range(batch_no):
             start = i * batch_size
             end = start + batch_size
-            inputs = Variable(torch.FloatTensor(x[start:end]))
+            inputs = Variable(torch.FloatTensor(x[start:end]))                                     # converting  input into tensor matrix then converting into pytorch variable 
             labels = Variable(torch.LongTensor(y[start:end]))
             
-            optimizer.zero_grad()
-            outputs = model(inputs)
+            optimizer.zero_grad()                                                                  # setting optimizer to zero gradient to clear optimization of previous iteration if any
+            outputs = model(inputs)                                                                # prediction on given input
             
-            loss = loss_func(outputs, labels)
+            loss = loss_func(outputs, labels)                                                      # calculating loss
             
-            loss.backward()
+            loss.backward()                                                                        # performing backpropogation
             optimizer.step()
             running_loss += loss.item()
-            acc = get_accuracy(outputs, labels, batch_size)
+            acc = get_accuracy(outputs, labels, batch_size)                                        
             train_acc += acc
           
           # print('Epoch: %d | Loss: %.4f | Train Accuracy: %.2f' \
@@ -655,12 +655,12 @@ train_neural_network(net,x_train,y_train['stroke'],size_hidden_1,size_hidden_2,n
 """Testing neural network"""
 
 def testing_nn(model,x,y,batch_size):
-    x=x.values
-    y=y['stroke'].values
-    inputs=Variable(torch.FloatTensor(x))
+    x=x.values                                        # converting input into numpy array
+    y=y['stroke'].values                              
+    inputs=Variable(torch.FloatTensor(x))             # converting input from numpy array into pytorch variable
     labels=Variable(torch.FloatTensor(y))
-    outputs= model(inputs)
-    return(get_accuracy(outputs, labels, batch_size))
+    outputs= model(inputs)                            # perdiction
+    return(get_accuracy(outputs, labels, batch_size)) # returning accuracy
 
 def prediction_nn(model,inputs,labels, batch_size):
     outputs=model(inputs)
@@ -668,16 +668,16 @@ def prediction_nn(model,inputs,labels, batch_size):
     return(get_accuracy(outputs,labels, batch_size))
 
 x_nn_val=x_val.values
-y_nn_val=y_val.values
+y_nn_val=y_val.values    # converting validation data into numpy array for validation
 
 x_nn_test=x_test.values
 y_nn_test=y_test.values
 
 m=len(x_nn_val)
-input_test= Variable(torch.FloatTensor(x_nn_val[0:m]))
+input_test= Variable(torch.FloatTensor(x_nn_val[0:m]))   # converting validation data into pytorch variable for validation
 label_test= Variable(torch.LongTensor(y_nn_val[0:m]))
 
-y_nn_pred=net(input_test)
+y_nn_pred=net(input_test)                                 # performing validation
 validation_accuracy = get_accuracy(y_nn_pred, label_test, m)
 validation_accuracy
 
@@ -697,14 +697,16 @@ class Pipeline():
     self.x_test  = x_test
     self.y_test  = y_test
 
-  def split(self,X,Y):
+  def split(self,X,Y): #to split the data
     sss = StratifiedShuffleSplit(n_splits=1, test_size=0.3,random_state = 42)
+
+    #to separate training data.
     for train_index, test_index in sss.split(X, Y):
       x_train = X.loc[train_index]
       y_train = Y.loc[train_index]
       test_x = X.loc[test_index]
       test_y = Y.loc[test_index]
-
+    #to reset the index after splitting.
     x_train.reset_index(inplace = True)
     x_train.drop("index",axis = 1, inplace = True)
 
@@ -718,6 +720,7 @@ class Pipeline():
     test_y.drop("index",axis = 1, inplace = True)
 
     sss = StratifiedShuffleSplit(n_splits=1, test_size= 1/3, random_state=42)
+    #to split the remaining data into testing and val.
     for test_index, val_index in sss.split(test_x, test_y):
       x_test = test_x.loc[test_index]
       y_test = test_y.loc[test_index]
@@ -739,7 +742,7 @@ class Pipeline():
 
     return x_train, y_train , x_val, y_val , x_test , y_test
  
-
+  # defining xgbclassification
   def xgbclassification(self):
     xgbclassifier = XGBClassifier(colsample_bytree = 0.7,gamma = 0.1,learning_rate =  0.1,max_depth = 8, min_child_weight = 3)
     xgbclassifier.fit(self.x_train, self.y_train)
@@ -747,8 +750,7 @@ class Pipeline():
     score = max(0,100*roc_auc_score(self.y_test, xgb_pred))
     print("Individual classifcation accuracy taking XGBClassifier is : " + str(score))
     return xgb_pred
-
-  #lgbm
+  # defining lgbmclassification
   def lgbmclassification(self):
     lgbmclassifier = lgb.LGBMClassifier(colsample_bytree = 0.7,gamma = 0.1,learning_rate = 0.3,max_depth= 15,min_child_weight = 5)
     lgbmclassifier.fit(self.x_train, self.y_train)
@@ -757,7 +759,7 @@ class Pipeline():
     print("Individual classifcation accuracy taking LGBBClassifier is : " + str(score))
     return lgbm_pred
 
-  #gbc
+  # defining gbcclassification
   def gbcclassification(self):
     gbc = GradientBoostingClassifier(learning_rate=0.1,loss='exponential',max_depth=70,max_features=2,n_estimators=300)
     gbc.fit(self.x_train, self.y_train)
@@ -765,8 +767,8 @@ class Pipeline():
     score = max(0,100*roc_auc_score(self.y_test, gbc_pred))
     print("Individual classifcation accuracy taking Gradient Boosting Classifier is : " + str(score))
     return gbc_pred
-  #rfc
-  
+
+  # defining rfcclassification
   def rfcclassification(self):
     rfc = RandomForestClassifier(bootstrap = False, max_depth = 24,max_features = 'sqrt',min_samples_leaf = 3, n_estimators = 265)
     # rfc = RandomForestClassifier(n_estimators=50,n_jobs=-1)
@@ -776,6 +778,7 @@ class Pipeline():
     print("Individual classifcation accuracy taking Random Forest Classifier is : " + str(score))
     return rfc_pred
 
+#to final predict after combining all the models.
   def prediction(self,xgb_pred,lgbm_pred,gbc_pred,rfc_pred):
     final_prediction = []
 
@@ -823,7 +826,7 @@ class Pipeline():
           final_prediction.append(1)
       
     return final_prediction
-      
+  #to find the score of the final prediciton
   def Scoring(self,final_prediction):
     score = max(0,100*roc_auc_score(self.y_test, final_prediction))
     return score
