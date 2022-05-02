@@ -334,7 +334,7 @@ x_train, y_train , x_val, y_val , x_test , y_test = split(X_smote,Y_smote)
 
 data_smote = pd.concat([X_smote, Y_smote],axis=1)
 
-"""Visualising our SMOTE dataset"""
+"""## Visualising our SMOTE dataset"""
 
 fig,ax=plt.subplots(1,2,figsize=(12,5))
 sns.scatterplot(data=data,x='age',y='avg_glucose_level',hue='stroke',ax=ax[0])\
@@ -366,9 +366,14 @@ plt.figure(figsize = (10 , 5))
 sns.barplot(y = "Model" , x = "ROC_AUC_Score" , data = score)
 plt.title("Model Comparision based on ROC_AUC_Score	");
 
+"""
+Visualising the F1 score and see which is greatest and most accurate to use."""
+
 plt.figure(figsize = (10 , 5))
 sns.barplot(y = "Model" , x = "F1_Score" , data = score)
 plt.title("Model Comparision based on F1_Score");
+
+"""Combining all the metrics used and looking for the correct models"""
 
 plt.figure(figsize = (10 , 5))
 plt.plot(model_names, F1, color = 'r', label = 'F1_score')
@@ -415,6 +420,8 @@ xgb_tuning.best_params_
 
 tuned_validation_roc_auc_scores.append(max(0,roc_auc_score(y_val, xgb_tuning.predict(x_val))))
 
+cv_score_xgb = max(0,roc_auc_score(y_val, xgb_tuning.predict(x_val)))
+
 tuned_validation_roc_auc_scores
 
 """##Tuning LGBM Classifier"""
@@ -427,6 +434,8 @@ lgb_tuning.best_params_
 max(0,roc_auc_score(y_val, lgb_tuning.predict(x_val)))
 
 lgb_tuning.best_params_
+
+cv_score_lgbm = max(0,roc_auc_score(y_val, lgb_tuning.predict(x_val)))
 
 """##Tuning Random Forest Classifier"""
 
@@ -456,14 +465,10 @@ def cross_validation(model, train_x, train_y, folds):
   scores_roc_auc   = cross_val_score(mdl, train_x, train_y, cv = cv, scoring = "roc_auc")
   return scores_precision, scores_recall , scores_roc_auc
 
-"""<p align = center>Scoring needs to be done on <strong> precision </strong> and <strong> Recall  </strong> as we need less False negative and less False positive so as a result we need <strong> High Precision. </strong> and <strong> High Recall </strong></p>"""
-
 train_x = pd.concat([x_train,x_val], axis = 0)
 train_y = pd.concat([y_train,y_val], axis = 0)
 folds = list(range(0,10))
 cv_scores_precision_rfc, cv_scores_recall_rfc , cv_scores_roc_auc_rfc = cross_validation(RandomForestClassifier(n_estimators=50,n_jobs=-1), train_x, train_y,len(folds))
-# cv_scores_precision_xgb, cv_scores_recall_xgb , cv_scores_roc_auc_xgb = cross_validation(xgb_tuning, train_x, train_y,len(folds))
-# cv_scores_precision_lgbm, cv_scores_recall_lgbm , cv_scores_roc_auc_lgbm = cross_validation(lgb.LGBMClassifier(), train_x, train_y,len(folds))
 cv_scores_precision_knn, cv_scores_recall_knn , cv_scores_roc_auc_knn = cross_validation(KNeighborsClassifier(n_neighbors=1,algorithm='kd_tree',weights='uniform'), train_x, train_y,len(folds))
 cv_scores_precision_dtc, cv_scores_recall_dtc , cv_scores_roc_auc_dtc = cross_validation(DecisionTreeClassifier(), train_x, train_y,len(folds))
 cv_scores_precision_gbc, cv_scores_recall_gbc , cv_scores_roc_auc_gbc = cross_validation(GradientBoostingClassifier(learning_rate=0.1,loss='exponential',max_depth=70,
@@ -480,8 +485,7 @@ def cross_validation_plotting(model_name,score,folds,scoring):
   print("Mean Cross Validation scores based on " + scoring + "  is : " + str(sum(score)/len(score)))
   print()
 
-"""<big><p align = center> Wow ! Amazing we have received the Mean Cross Validation based upon our metric i.e., Area under ROC curve which is 0.9781517126905085
- </p></big>
+"""Generating the cross validation results for each model and visualising each metric for each model
 
 ###RFC
 """
@@ -515,8 +519,10 @@ cv_auc_roc_scores.append(sum(cv_scores_roc_auc_rfc)/ len(cv_scores_roc_auc_rfc))
 cv_auc_roc_scores.append(sum(cv_scores_roc_auc_knn)/ len(cv_scores_roc_auc_knn))
 cv_auc_roc_scores.append(sum(cv_scores_roc_auc_dtc)/ len(cv_scores_roc_auc_dtc))
 cv_auc_roc_scores.append(sum(cv_scores_roc_auc_gbc)/ len(cv_scores_roc_auc_gbc))
+cv_auc_roc_scores.append(cv_score_xgb)
+cv_auc_roc_scores.append(cv_score_lgbm)
 
-model_names = ['RandomForestClassifier', 'KNeighborsClassifier','DecisionTreeClassifier','GradientBoostingClassifier']
+model_names = ['RandomForestClassifier', 'KNeighborsClassifier','DecisionTreeClassifier','GradientBoostingClassifier','XGBClassifier','LightGBM']
 score = pd.DataFrame({'Model': model_names, 'Cross Validation AUC ROC Score':cv_auc_roc_scores})
 score.style.background_gradient(high=1,axis=0)
 
@@ -535,6 +541,8 @@ def get_accuracy(logit, target, batch_size):
 x_train_nn=x_train.values
 y_train_nn=y_train.values
 
+"""Defining Neural Network parameters"""
+
 batch_size = 100
 num_epochs = 100
 learning_rate = 0.1
@@ -543,6 +551,8 @@ size_hidden_2 = 200
 num_classes = 10
 batch_no = len(x_train_nn) // batch_size 
 cols = 8
+
+"""Making neural network class"""
 
 class Net(torch.nn.Module):
     def __init__(self, num_inputs, size_hidden_1, size_hidden_2, n_output, activation_function):
@@ -605,6 +615,8 @@ class Net(torch.nn.Module):
 activation_function=torch.nn.ReLU()
 net = Net(9, 256, 256, 2, activation_function)
 
+"""Training neural network"""
+
 def train_neural_network(model,x,y,size_hidden_1,size_hidden_2,num_epochs,lr,batch_size):
     batch_no=len(x.values)// batch_size
     x=x.values
@@ -639,6 +651,8 @@ def train_neural_network(model,x,y,size_hidden_1,size_hidden_2,num_epochs,lr,bat
     return(model)
 
 train_neural_network(net,x_train,y_train['stroke'],size_hidden_1,size_hidden_2,num_epochs,learning_rate,batch_size)
+
+"""Testing neural network"""
 
 def testing_nn(model,x,y,batch_size):
     x=x.values
